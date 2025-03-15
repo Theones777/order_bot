@@ -1,0 +1,7 @@
+venv
+.idea
+.env
+*.json
+*.csv
+*.db*
+todo.txt
