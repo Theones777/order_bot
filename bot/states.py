@@ -1,5 +1,5 @@
 from aiogram.fsm.state import StatesGroup, State
 
 class Order(StatesGroup):
-    comments = State()
+    quantity = State()
     confirm = State()

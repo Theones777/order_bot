@@ -10,12 +10,13 @@ class IMGConverter:
         self.crop_mode = self.resize_with_padding if crop_mode == "resize_with_padding" else self.hard_resize
 
     def make_images(self, data: dict):
-        for step, step_info in data.items():
-            new_image_path = os.path.join(Config.IMAGES_PATH, f"{step}.jpg")
-            images = [
-                self.crop_mode(Image.open(os.path.join(Config.IMAGES_PATH, f"{text}.jpg")))
-                for text in step_info
-            ]
+        for product in data.keys():
+            images = []
+            new_image_path = os.path.join(Config.IMAGES_PATH, f"{product}.jpg")
+            for img_file in os.path.join(Config.IMAGES_PATH, product):
+                img = Image.open(os.path.join(Config.IMAGES_PATH, product, img_file))
+                images.append(self.crop_mode(img))
+
             new_width = sum(img.width for img in images)
             new_height = max(img.height for img in images)
 

@@ -1,5 +1,3 @@
-import asyncio
-import traceback
 from enum import Enum
 
 from aiogram import Bot
@@ -11,7 +9,6 @@ from aiogram.types import (
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot.clients.init_clients import storage_client
-from bot.log import logger
 from config import Config
 
 
@@ -23,6 +20,7 @@ class UserConfirmButtons(Enum):
 async def set_commands(bot: Bot):
     commands = [
         BotCommand(command="start", description="Сделать заказ"),
+        BotCommand(command="cart", description="Корзина"),
         BotCommand(command="help", description="Помощь"),
         BotCommand(command="cancel", description="Отмена"),
     ]
@@ -42,10 +40,14 @@ async def make_inline_keyboard(buttons_info: list) -> InlineKeyboardBuilder:
     return builder.as_markup()
 
 
-async def make_order_message(order_data: dict, user_input: str):
-    order_items = [storage_client.revers_callbacks_dict[callback_data] for callback_data in order_data.values()]
-    order_message = "\n".join([*order_items, user_input])
-    return order_message
+async def make_cart_message(order_data: dict):
+    result = "Ваш заказ:\n"
+    amount = 0
+    for product, product_count in order_data["order"].items():
+        result += f"{product} - {product_count}\n"
+        amount += int(storage_client.data[product]['цена']) * product_count
+    result += "Сумма заказа - {amount} рублей"
+    return result
 
 
 async def confirm_order(bot: Bot, order_message: str):
