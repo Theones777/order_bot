@@ -63,7 +63,7 @@ async def quantity_inserted(msg: Message, state: FSMContext):
 
 @user_router.callback_query(
     StateFilter(None),
-    F.data == storage_client.callbacks_dict[ADD_TO_CART_MESSAGE],
+    F.data == storage_client.data[ADD_TO_CART_MESSAGE]["callback_data"],
 )
 async def quantity_callback_handler(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text="Теперь введите необходимое количество")
@@ -81,7 +81,7 @@ async def common_callback_handler(callback: CallbackQuery, state: FSMContext):
     buttons_info = [
         {
             "text": ADD_TO_CART_MESSAGE,
-            "callback_data": storage_client.callbacks_dict[ADD_TO_CART_MESSAGE]["callback_data"]
+            "callback_data": storage_client.data[ADD_TO_CART_MESSAGE]["callback_data"]
         }
     ]
     photo_id = storage_client.photo_ids.get(product)
@@ -92,7 +92,7 @@ async def common_callback_handler(callback: CallbackQuery, state: FSMContext):
 
     result = await callback.message.answer_photo(
         image,
-        caption="Фото примеры",
+        caption=f"Цена за {product} = {storage_client.data[product]['цена']}",
         reply_markup=await make_inline_keyboard(buttons_info)
     )
     if not photo_id:

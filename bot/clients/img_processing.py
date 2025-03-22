@@ -13,7 +13,7 @@ class IMGConverter:
         for product in data.keys():
             images = []
             new_image_path = os.path.join(Config.IMAGES_PATH, f"{product}.jpg")
-            for img_file in os.path.join(Config.IMAGES_PATH, product):
+            for img_file in os.listdir(os.path.join(Config.IMAGES_PATH, product)):
                 img = Image.open(os.path.join(Config.IMAGES_PATH, product, img_file))
                 images.append(self.crop_mode(img))
 

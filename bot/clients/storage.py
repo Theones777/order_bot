@@ -21,9 +21,9 @@ class Storage:
             self.data[product]["callback_data"] = callback_data
             self.revers_callbacks_dict[callback_data] = product
 
+        self.IMGConverter = IMGConverter(crop_mode=Config.IMG_CROP_MODE)
+        self.IMGConverter.make_images(self.data)
+
         self.data[ADD_TO_CART_MESSAGE] = {
             "callback_data": translit(ADD_TO_CART_MESSAGE, 'ru', reversed=True).replace(" ", "_")
         }
-
-        self.IMGConverter = IMGConverter(crop_mode=Config.IMG_CROP_MODE)
-        self.IMGConverter.make_images(self.data)
