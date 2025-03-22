@@ -37,19 +37,22 @@ async def confirm(callback: CallbackQuery, state: FSMContext, bot: Bot):
 
 @user_router.message(Command(commands=["cart"]))
 async def pay_order(msg: Message, state: FSMContext):
-    user_data = await state.get_data()
-    cart_message = await make_cart_message(user_data)
-    order_data = await state.get_data()
-    order_data['cart_message'] = cart_message
-    await state.update_data(order_data)
+    if user_data := await state.get_data():
+        cart_message = await make_cart_message(user_data)
+        order_data = await state.get_data()
+        order_data['cart_message'] = cart_message
+        await state.update_data(order_data)
 
-    keyboard = await make_inline_keyboard([{
-        "text": button.value,
-        "callback_data": button.name
-    } for button in UserConfirmButtons])
-    await state.set_state(Order.cart)
-    await msg.answer(cart_message, reply_markup=keyboard)
-
+        keyboard = await make_inline_keyboard([{
+            "text": button.value,
+            "callback_data": button.name
+        } for button in UserConfirmButtons])
+        await state.set_state(Order.cart)
+        message = cart_message
+    else:
+        message = "Ваша корзина пуста"
+        keyboard = None
+    await msg.answer(message, reply_markup=keyboard)
 
 @user_router.message(Order.quantity)
 async def quantity_inserted(msg: Message, state: FSMContext):
@@ -59,7 +62,7 @@ async def quantity_inserted(msg: Message, state: FSMContext):
     product = storage_client.revers_callbacks_dict[callback_data]
     order_data["order"][product] = int(user_input)
     await state.update_data(order_data)
-
+    await state.set_state(None)
 
 @user_router.callback_query(
     StateFilter(None),
@@ -98,21 +101,22 @@ async def common_callback_handler(callback: CallbackQuery, state: FSMContext):
     if not photo_id:
         storage_client.photo_ids[product] = result.photo[-1].file_id
 
-    await state.update_data({"callback_data": callback_data, "order": {}})
+    if order_data := await state.get_data():
+        order_data["callback_data"] = callback_data
+    else:
+        order_data = {"callback_data": callback_data, "order": {}}
+    await state.update_data(order_data)
     await callback.answer()
 
 
 @user_router.message(StateFilter("*"), Command(commands=["start"]))
-async def make_order(msg: Message, state: FSMContext):
-    await state.set_data({})
-    await state.clear()
-
+async def make_order(msg: Message):
     buttons_info = [
         {
             "text": product,
             "callback_data": storage_client.data[product]["callback_data"]
         }
-        for product in storage_client.data.keys()
+        for product in storage_client.data.keys() if product != ADD_TO_CART_MESSAGE
     ]
 
     await msg.answer(START_MESSAGE, reply_markup=await make_inline_keyboard(buttons_info))

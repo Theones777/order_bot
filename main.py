@@ -7,6 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot.handlers.user import user_router
 from bot.handlers.common import common_router
+from bot.log import logger
 from bot.utils import set_commands
 from config import Config
 

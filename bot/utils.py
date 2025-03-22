@@ -46,7 +46,7 @@ async def make_cart_message(order_data: dict):
     for product, product_count in order_data["order"].items():
         result += f"{product} - {product_count}\n"
         amount += int(storage_client.data[product]['цена']) * product_count
-    result += "Сумма заказа - {amount} рублей"
+    result += f"Сумма заказа - {amount} рублей"
     return result
 
 
