@@ -13,7 +13,7 @@ from config import Config
 
 
 class UserConfirmButtons(Enum):
-    sure = "Уверен"
+    sure = "Оформить заказ"
     cancel = "Отмена"
 
 

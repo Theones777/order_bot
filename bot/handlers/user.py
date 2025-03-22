@@ -19,7 +19,7 @@ from config import Config
 user_router = Router()
 
 
-@user_router.callback_query(Order.confirm, F.data.in_([el.name for el in UserConfirmButtons]))
+@user_router.callback_query(Order.cart, F.data.in_([el.name for el in UserConfirmButtons]))
 async def confirm(callback: CallbackQuery, state: FSMContext, bot: Bot):
     if callback.data == UserConfirmButtons.sure.name:
         user_data = await state.get_data()
@@ -47,7 +47,7 @@ async def pay_order(msg: Message, state: FSMContext):
         "text": button.value,
         "callback_data": button.name
     } for button in UserConfirmButtons])
-
+    await state.set_state(Order.cart)
     await msg.answer(cart_message, reply_markup=keyboard)
 
 
